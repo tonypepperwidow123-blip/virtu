@@ -1,0 +1,138 @@
+/**
+ * VirtuConnect Admin Styles
+ *
+ * @package VirtuConnect
+ */
+
+/* Admin Wrap */
+.virtu-admin-wrap {
+	max-width: 960px;
+}
+
+/* Tabs */
+.virtu-tabs {
+	margin-bottom: 20px;
+}
+
+.virtu-tabs .nav-tab {
+	font-size: 14px;
+	padding: 8px 16px;
+}
+
+.virtu-tabs .nav-tab-active {
+	background: #fff;
+	border-bottom-color: #fff;
+}
+
+/* Tab Content */
+.virtu-tab-content {
+	background: #fff;
+	padding: 20px 24px;
+	border: 1px solid #c3c4c7;
+	border-top: none;
+	border-radius: 0 0 4px 4px;
+}
+
+.virtu-tab-content h2 {
+	font-size: 16px;
+	margin: 20px 0 10px;
+	padding: 0 0 8px;
+	border-bottom: 1px solid #eee;
+}
+
+.virtu-tab-content h2:first-of-type {
+	margin-top: 0;
+}
+
+/* Form Table */
+.virtu-tab-content .form-table th {
+	width: 200px;
+	padding: 16px 10px 16px 0;
+	font-weight: 600;
+}
+
+.virtu-tab-content .form-table td {
+	padding: 12px 10px;
+}
+
+.virtu-tab-content .form-table input.regular-text {
+	width: 100%;
+	max-width: 400px;
+}
+
+.virtu-tab-content .form-table textarea.large-text {
+	max-width: 500px;
+}
+
+.virtu-tab-content .form-table .description {
+	margin-top: 6px;
+	color: #646970;
+	font-style: italic;
+}
+
+/* Color Picker */
+.virtu-tab-content .wp-picker-container {
+	display: inline-block;
+}
+
+.virtu-tab-content .wp-picker-container .wp-color-result {
+	margin: 0 6px 0 0;
+}
+
+/* Leads Table */
+.virtu-status-dropdown {
+	padding: 4px 8px;
+	border: 1px solid #ddd;
+	border-radius: 4px;
+	font-size: 13px;
+	cursor: pointer;
+	background: #fff;
+	min-width: 110px;
+}
+
+.virtu-status-dropdown:focus {
+	border-color: #2271b1;
+	box-shadow: 0 0 0 1px #2271b1;
+	outline: none;
+}
+
+/* Status Colors */
+.virtu-status-dropdown option[value="new"] {
+	color: #2271b1;
+}
+
+.virtu-status-dropdown option[value="contacted"] {
+	color: #dba617;
+}
+
+.virtu-status-dropdown option[value="closed"] {
+	color: #1a7a3c;
+}
+
+/* Export Button */
+.page-title-action {
+	margin-left: 8px !important;
+}
+
+/* Leads page heading */
+.virtu-admin-wrap .wp-heading-inline {
+	margin-right: 8px;
+}
+
+/* Responsive */
+@media screen and (max-width: 782px) {
+	.virtu-tab-content .form-table th {
+		width: auto;
+		display: block;
+		padding-bottom: 4px;
+	}
+
+	.virtu-tab-content .form-table td {
+		display: block;
+		padding-top: 0;
+	}
+
+	.virtu-tab-content .form-table input.regular-text {
+		max-width: 100%;
+	}
+}
