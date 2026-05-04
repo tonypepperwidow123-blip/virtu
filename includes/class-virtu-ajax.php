@@ -116,8 +116,10 @@ class Virtu_Ajax {
 			'message'        => $message,
 		);
 
-		// 5. Send admin notification email.
-		Virtu_Email::send_notification( $lead_data );
+		// 5. Send admin notification email if enabled.
+		if ( 'yes' === get_option( 'virtu_enable_admin_email', 'yes' ) ) {
+			Virtu_Email::send_notification( $lead_data );
+		}
 
 		// 6. Send auto-reply if enabled.
 		if ( 'yes' === get_option( 'virtu_auto_reply', 'yes' ) ) {

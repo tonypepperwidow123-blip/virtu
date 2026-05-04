@@ -94,6 +94,7 @@ class Virtu_Settings {
 	 * Register Email tab settings.
 	 */
 	private function register_email_settings() {
+		register_setting( 'virtu_email', 'virtu_enable_admin_email', array( 'sanitize_callback' => 'sanitize_text_field' ) );
 		register_setting( 'virtu_email', 'virtu_admin_email', array( 'sanitize_callback' => 'sanitize_email' ) );
 		register_setting( 'virtu_email', 'virtu_email_subject', array( 'sanitize_callback' => 'sanitize_text_field' ) );
 		register_setting( 'virtu_email', 'virtu_auto_reply', array( 'sanitize_callback' => 'sanitize_text_field' ) );
@@ -102,6 +103,7 @@ class Virtu_Settings {
 
 		add_settings_section( 'virtu_email_section', __( 'Email Notification Settings', 'virtu-connect' ), '__return_false', 'virtu_email' );
 
+		add_settings_field( 'virtu_enable_admin_email', __( 'Enable Admin Notification', 'virtu-connect' ), array( $this, 'render_checkbox' ), 'virtu_email', 'virtu_email_section', array( 'id' => 'virtu_enable_admin_email', 'label' => __( 'Send email notification to admin when a new lead is submitted', 'virtu-connect' ) ) );
 		add_settings_field( 'virtu_admin_email', __( 'Admin Email', 'virtu-connect' ), array( $this, 'render_text' ), 'virtu_email', 'virtu_email_section', array( 'id' => 'virtu_admin_email', 'type' => 'email', 'desc' => __( 'Email address to receive lead notifications.', 'virtu-connect' ) ) );
 		add_settings_field( 'virtu_email_subject', __( 'Email Subject', 'virtu-connect' ), array( $this, 'render_text' ), 'virtu_email', 'virtu_email_section', array( 'id' => 'virtu_email_subject', 'desc' => __( 'Variables: {product_name}, {customer_name}, {date}', 'virtu-connect' ) ) );
 
