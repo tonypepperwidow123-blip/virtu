@@ -201,6 +201,8 @@ class Virtu_Email {
 		$api_key    = get_option( 'virtu_resend_api_key', '' );
 		$from_email = get_option( 'virtu_resend_from_email', get_option( 'admin_email' ) );
 
+		$resend_success = false;
+
 		if ( 'yes' === $use_resend && ! empty( $api_key ) ) {
 			// Send via Resend REST API.
 			$response = wp_remote_post(
@@ -223,14 +225,26 @@ class Virtu_Email {
 				)
 			);
 
-			// Log Resend API errors for debugging.
+			// Check for API errors or HTTP failures.
 			if ( is_wp_error( $response ) ) {
 				$log = '[' . gmdate( 'Y-m-d H:i:s' ) . '] Resend API Error: ' . $response->get_error_message() . PHP_EOL;
 				// phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
 				@file_put_contents( VIRTU_PATH . 'virtu-error.log', $log, FILE_APPEND | LOCK_EX );
+			} else {
+				$status_code = wp_remote_retrieve_response_code( $response );
+				if ( $status_code >= 200 && $status_code < 300 ) {
+					$resend_success = true;
+				} else {
+					$error_body = wp_remote_retrieve_body( $response );
+					$log = '[' . gmdate( 'Y-m-d H:i:s' ) . '] Resend API Rejected (HTTP ' . $status_code . '): ' . $error_body . PHP_EOL;
+					// phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+					@file_put_contents( VIRTU_PATH . 'virtu-error.log', $log, FILE_APPEND | LOCK_EX );
+				}
 			}
-		} else {
-			// Fall back to wp_mail().
+		}
+
+		// Fallback: If Resend is off, or if the API call failed (e.g. testing mode restriction), use default mail.
+		if ( ! $resend_success ) {
 			$headers = array( 'Content-Type: text/html; charset=UTF-8' );
 			wp_mail( $to, $subject, $body, $headers );
 		}
