@@ -82,13 +82,34 @@ function virtu_load_classes() {
  * Initialize the plugin.
  */
 function virtu_init_plugin() {
-	if ( ! virtu_check_woocommerce() ) {
-		return;
+	try {
+		if ( ! virtu_check_woocommerce() ) {
+			return;
+		}
+
+		virtu_load_classes();
+
+		Virtu_Connect::get_instance();
+
+	} catch ( \Throwable $e ) {
+		// Catch fatal errors and log them — prevents the site-wide white screen.
+		$log = '[' . date( 'Y-m-d H:i:s' ) . '] VirtuConnect Error: '
+			. $e->getMessage()
+			. ' in ' . $e->getFile()
+			. ' on line ' . $e->getLine() . "\n";
+		@file_put_contents( __DIR__ . '/virtu-error.log', $log, FILE_APPEND | LOCK_EX );
+
+		// Show admin notice instead of crashing the site.
+		add_action(
+			'admin_notices',
+			function() use ( $e ) {
+				echo '<div class="notice notice-error"><p>'
+					. '<strong>VirtuConnect:</strong> A PHP error was caught and the plugin was disabled to protect your site. '
+					. 'Error: ' . esc_html( $e->getMessage() )
+					. ' — Check <code>virtu-error.log</code> in the plugin folder for details.</p></div>';
+			}
+		);
 	}
-
-	virtu_load_classes();
-
-	Virtu_Connect::get_instance();
 }
 add_action( 'plugins_loaded', 'virtu_init_plugin' );
 
