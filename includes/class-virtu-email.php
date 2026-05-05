@@ -103,9 +103,7 @@ class Virtu_Email {
 		$body .= '</div>'; // End wrapper.
 		$body .= '</body></html>';
 
-		$headers = array( 'Content-Type: text/html; charset=UTF-8' );
-
-		wp_mail( $to, $subject, $body, $headers );
+		self::send_email( $to, $subject, $body );
 	}
 
 	/**
@@ -161,8 +159,41 @@ class Virtu_Email {
 		$body .= '</div>';
 		$body .= '</body></html>';
 
-		$headers = array( 'Content-Type: text/html; charset=UTF-8' );
-
-		wp_mail( $to, $subject, $body, $headers );
+		self::send_email( $to, $subject, $body );
 	}
+
+	/**
+	 * Send email either via Resend API or default wp_mail.
+	 *
+	 * @param string $to      Recipient email.
+	 * @param string $subject Email subject.
+	 * @param string $body    Email HTML body.
+	 */
+	private static function send_email( $to, $subject, $body ) {
+		$use_resend = get_option( 'virtu_use_resend', 'no' );
+		$api_key    = get_option( 'virtu_resend_api_key', '' );
+		$from_email = get_option( 'virtu_resend_from_email', get_option( 'admin_email' ) );
+
+		if ( 'yes' === $use_resend && ! empty( $api_key ) ) {
+			$url  = 'https://api.resend.com/emails';
+			$args = array(
+				'method'  => 'POST',
+				'headers' => array(
+					'Authorization' => 'Bearer ' . $api_key,
+					'Content-Type'  => 'application/json',
+				),
+				'body'    => wp_json_encode(
+					array(
+						'from'    => 'VirtuConnect <' . $from_email . '>',
+						'to'      => array( $to ),
+						'subject' => $subject,
+						'html'    => $body,
+					)
+				),
+			);
+			wp_remote_post( $url, $args );
+		} else {
+			$headers = array( 'Content-Type: text/html; charset=UTF-8' );
+			wp_mail( $to, $subject, $body, $headers );
+		}
 }

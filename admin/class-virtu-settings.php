@@ -101,11 +101,21 @@ class Virtu_Settings {
 		register_setting( 'virtu_email', 'virtu_auto_reply_subject', array( 'sanitize_callback' => 'sanitize_text_field' ) );
 		register_setting( 'virtu_email', 'virtu_auto_reply_message', array( 'sanitize_callback' => 'sanitize_textarea_field' ) );
 
+		// Resend Settings
+		register_setting( 'virtu_email', 'virtu_use_resend', array( 'sanitize_callback' => 'sanitize_text_field' ) );
+		register_setting( 'virtu_email', 'virtu_resend_api_key', array( 'sanitize_callback' => 'sanitize_text_field' ) );
+		register_setting( 'virtu_email', 'virtu_resend_from_email', array( 'sanitize_callback' => 'sanitize_email' ) );
+
 		add_settings_section( 'virtu_email_section', __( 'Email Notification Settings', 'virtu-connect' ), '__return_false', 'virtu_email' );
 
 		add_settings_field( 'virtu_enable_admin_email', __( 'Enable Admin Notification', 'virtu-connect' ), array( $this, 'render_checkbox' ), 'virtu_email', 'virtu_email_section', array( 'id' => 'virtu_enable_admin_email', 'label' => __( 'Send email notification to admin when a new lead is submitted', 'virtu-connect' ) ) );
 		add_settings_field( 'virtu_admin_email', __( 'Admin Email', 'virtu-connect' ), array( $this, 'render_text' ), 'virtu_email', 'virtu_email_section', array( 'id' => 'virtu_admin_email', 'type' => 'email', 'desc' => __( 'Email address to receive lead notifications.', 'virtu-connect' ) ) );
 		add_settings_field( 'virtu_email_subject', __( 'Email Subject', 'virtu-connect' ), array( $this, 'render_text' ), 'virtu_email', 'virtu_email_section', array( 'id' => 'virtu_email_subject', 'desc' => __( 'Variables: {product_name}, {customer_name}, {date}', 'virtu-connect' ) ) );
+
+		add_settings_section( 'virtu_resend_section', __( 'Resend API Integration', 'virtu-connect' ), '__return_false', 'virtu_email' );
+		add_settings_field( 'virtu_use_resend', __( 'Use Resend API', 'virtu-connect' ), array( $this, 'render_checkbox' ), 'virtu_email', 'virtu_resend_section', array( 'id' => 'virtu_use_resend', 'label' => __( 'Use Resend platform to send emails instead of default wp_mail()', 'virtu-connect' ) ) );
+		add_settings_field( 'virtu_resend_api_key', __( 'Resend API Key', 'virtu-connect' ), array( $this, 'render_text' ), 'virtu_email', 'virtu_resend_section', array( 'id' => 'virtu_resend_api_key', 'desc' => __( 'Your Resend API Key (starts with re_...)', 'virtu-connect' ) ) );
+		add_settings_field( 'virtu_resend_from_email', __( 'From Email', 'virtu-connect' ), array( $this, 'render_text' ), 'virtu_email', 'virtu_resend_section', array( 'id' => 'virtu_resend_from_email', 'type' => 'email', 'desc' => __( 'Must be a verified domain in your Resend account (e.g. notifications@yourdomain.com)', 'virtu-connect' ) ) );
 
 		add_settings_section( 'virtu_auto_reply_section', __( 'Auto-Reply Settings', 'virtu-connect' ), '__return_false', 'virtu_email' );
 
