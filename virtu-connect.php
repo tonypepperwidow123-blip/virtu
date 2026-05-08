@@ -124,12 +124,56 @@ function virtu_init_plugin() {
 add_action( 'plugins_loaded', 'virtu_init_plugin' );
 
 /**
- * Register AJAX handler for the test email button in settings.
+ * Register AJAX handlers for the Email settings tab tools.
  */
 add_action( 'wp_ajax_virtu_send_test_email', function () {
 	if ( class_exists( 'Virtu_Email' ) ) {
 		Virtu_Email::handle_test_email();
 	}
+} );
+
+add_action( 'wp_ajax_virtu_read_log', function () {
+	if ( ! check_ajax_referer( 'virtu_log_action_nonce', 'nonce', false ) || ! current_user_can( 'manage_options' ) ) {
+		wp_send_json_error( 'Unauthorized.' );
+	}
+
+	$log_file = VIRTU_PATH . 'virtu-error.log';
+	if ( ! file_exists( $log_file ) ) {
+		wp_send_json_success( '<span style="color:#888;">No log file yet. Send a test email to create it.</span>' );
+	}
+
+	$raw_lines = array_filter( explode( PHP_EOL, file_get_contents( $log_file ) ) ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+	if ( empty( $raw_lines ) ) {
+		wp_send_json_success( '<span style="color:#888;">Log is empty.</span>' );
+	}
+
+	// Newest 50 lines first.
+	$raw_lines = array_reverse( array_slice( $raw_lines, -50 ) );
+	$html      = '';
+	foreach ( $raw_lines as $line ) {
+		$color = '#d4d4d4';
+		if ( strpos( $line, 'SUCCESS' ) !== false ) {
+			$color = '#4ec9b0';
+		} elseif ( strpos( $line, 'FAILED' ) !== false || strpos( $line, 'Error' ) !== false || strpos( $line, 'SKIPPED' ) !== false ) {
+			$color = '#f48771';
+		} elseif ( strpos( $line, 'Attempting' ) !== false || strpos( $line, 'Falling back' ) !== false ) {
+			$color = '#dcdcaa';
+		}
+		$html .= '<span style="color:' . esc_attr( $color ) . ';">' . esc_html( $line ) . '</span>' . "\n";
+	}
+
+	wp_send_json_success( $html );
+} );
+
+add_action( 'wp_ajax_virtu_clear_log', function () {
+	if ( ! check_ajax_referer( 'virtu_log_action_nonce', 'nonce', false ) || ! current_user_can( 'manage_options' ) ) {
+		wp_send_json_error( 'Unauthorized.' );
+	}
+
+	$log_file = VIRTU_PATH . 'virtu-error.log';
+	// phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+	@file_put_contents( $log_file, '' );
+	wp_send_json_success( 'Log cleared.' );
 } );
 
 /**
