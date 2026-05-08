@@ -124,6 +124,15 @@ function virtu_init_plugin() {
 add_action( 'plugins_loaded', 'virtu_init_plugin' );
 
 /**
+ * Register AJAX handler for the test email button in settings.
+ */
+add_action( 'wp_ajax_virtu_send_test_email', function () {
+	if ( class_exists( 'Virtu_Email' ) ) {
+		Virtu_Email::handle_test_email();
+	}
+} );
+
+/**
  * Activation hook.
  */
 register_activation_hook( __FILE__, 'virtu_activate_plugin' );

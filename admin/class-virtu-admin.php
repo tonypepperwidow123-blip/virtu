@@ -145,9 +145,10 @@ class Virtu_Admin {
 		);
 
 		wp_localize_script( 'virtu-admin-js', 'virtuAdmin', array(
-			'ajax_url' => admin_url( 'admin-ajax.php' ),
-			'nonce'    => wp_create_nonce( 'virtu_leads_nonce' ),
-			'strings'  => array(
+			'ajax_url'         => admin_url( 'admin-ajax.php' ),
+			'nonce'            => wp_create_nonce( 'virtu_leads_nonce' ),
+			'test_email_nonce' => wp_create_nonce( 'virtu_test_email_nonce' ),
+			'strings'          => array(
 				'status_updated' => __( 'Status updated.', 'virtu-connect' ),
 				'status_error'   => __( 'Failed to update status.', 'virtu-connect' ),
 			),
