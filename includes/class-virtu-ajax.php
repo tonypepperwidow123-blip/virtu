@@ -121,7 +121,8 @@ class Virtu_Ajax {
 			Virtu_Email::send_notification( $lead_data );
 		}
 
-		// 6. Send auto-reply if enabled.
+		// 6. Send customer auto-reply if enabled.
+		// This is the single gate — the email class does NOT check the option again.
 		if ( 'yes' === get_option( 'virtu_auto_reply', 'yes' ) ) {
 			Virtu_Email::send_auto_reply( $lead_data );
 		}
