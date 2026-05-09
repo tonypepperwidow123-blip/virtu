@@ -186,25 +186,29 @@ class Virtu_Email {
 			} else {
 				self::log( '[' . $email_type . '] Attempting Resend: TO=[' . $to . '] FROM=[' . $from_email . ']' );
 
-				$response = wp_remote_post(
-					'https://api.resend.com/emails',
-					array(
-						'method'  => 'POST',
-						'headers' => array(
-							'Authorization' => 'Bearer ' . $api_key,
-							'Content-Type'  => 'application/json',
-						),
-						'body'    => wp_json_encode(
-							array(
-								'from'    => get_bloginfo( 'name' ) . ' <' . $from_email . '>',
-								'to'      => array( $to ),
-								'subject' => $subject,
-								'html'    => $body,
-							)
-						),
-						'timeout' => 15,
-					)
-				);
+				$resend_payload = array(
+				'from'    => get_bloginfo( 'name' ) . ' <' . $from_email . '>',
+				'to'      => array( $to ),
+				'subject' => $subject,
+				'html'    => $body,
+			);
+
+			if ( ! empty( $reply_to ) && is_email( $reply_to ) ) {
+				$resend_payload['reply_to'] = $reply_to;
+			}
+
+			$response = wp_remote_post(
+				'https://api.resend.com/emails',
+				array(
+					'method'  => 'POST',
+					'headers' => array(
+						'Authorization' => 'Bearer ' . $api_key,
+						'Content-Type'  => 'application/json',
+					),
+					'body'    => wp_json_encode( $resend_payload ),
+					'timeout' => 15,
+				)
+			);
 
 				if ( is_wp_error( $response ) ) {
 					self::log( '[' . $email_type . '] Resend WP_Error: ' . $response->get_error_message() );
@@ -240,9 +244,20 @@ class Virtu_Email {
 	 */
 	private static function send_via_wp_mail( $email_type, $to, $subject, $body, $reply_to = '' ) {
 		$site_name   = get_bloginfo( 'name' );
-		$site_domain = wp_parse_url( get_home_url(), PHP_URL_HOST );
 		$from_name   = ! empty( $site_name ) ? $site_name : 'VirtuConnect';
-		$from_email  = 'noreply@' . $site_domain;
+
+		// Try to use admin_email domain (proper domain = better deliverability).
+		// Fall back to site domain if admin_email looks weird.
+		$admin_email      = get_option( 'admin_email', '' );
+		$admin_email_part = strtolower( substr( strrchr( $admin_email, '@' ), 1 ) );
+		$site_domain      = wp_parse_url( get_home_url(), PHP_URL_HOST );
+
+		$blocked = array( 'gmail.com', 'yahoo.com', 'hotmail.com', 'outlook.com', 'live.com' );
+		if ( ! empty( $admin_email_part ) && ! in_array( $admin_email_part, $blocked, true ) ) {
+			$from_email = 'noreply@' . $admin_email_part;
+		} else {
+			$from_email = 'noreply@' . $site_domain;
+		}
 
 		$headers = array(
 			'Content-Type: text/html; charset=UTF-8',
